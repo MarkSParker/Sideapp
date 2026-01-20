@@ -34,6 +34,9 @@ namespace sideapp
         [DllImport("kernel32.dll")]
         static extern uint QueryDosDevice(string lpDeviceName, StringBuilder lpTargetPath, int ucchMax);
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
@@ -47,6 +50,10 @@ namespace sideapp
             this.label1EventCount.DoubleClick += new System.EventHandler(this.label1EventCount_DoubleClick);
         }
 
+        /// <summary>
+        /// Handles the MouseEnter event for the form by making all previously hidden controls visible and initiating a
+        /// background process to revert their visibility. Also brings the form to the foreground.
+        /// </summary>
         private void Form1MouseEnter(object sender, EventArgs e)
         {
             //	When the mouse enters make all invisible controls visible and kick a thread to turn
@@ -68,6 +75,9 @@ namespace sideapp
             threadSetControlsInvisible.Start();
         }
 
+        /// <summary>
+        /// Make all unused controls invisible after a short delay. Removes screen clutter.
+        /// </summary>
         private void SetControlsInvisible()
         {
             //	First wait a tad
@@ -110,12 +120,17 @@ namespace sideapp
             buttonQuit.Visible = false;
         }
 
+        /// <summary>
+        /// On Form Load: Set up the form position, start the date/time thread, and initialize timers and event count.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_Load(object sender, EventArgs e)
         {
             CheckForIllegalCrossThreadCalls = false;
 
             //	Put the form top right
-            Left = System.Windows.Forms.SystemInformation.PrimaryMonitorSize.Width - Width;
+            Left = SystemInformation.PrimaryMonitorSize.Width - Width;
             Top = 0;
 
             //	Start the clock
@@ -132,9 +147,12 @@ namespace sideapp
 
             //	Init the event count
             labelEventCountStatus.Text = "Event count";
-            label1EventCount.Text = string.Format("{0,5}", iEventCount);
+            label1EventCount.Text = $"{iEventCount,5}";
         }
 
+        /// <summary>
+        /// Display the current date and time, and update subst drive mappings every interval.
+        /// </summary>
         private void ShowDateTime()
         {
             while (!Form1Closed)
@@ -162,6 +180,8 @@ namespace sideapp
                     labelS.Visible = false;
                 }
 
+                //  Display an onscreen indication if certain drive letters have been mapped using SUBST.
+                //  (Avoids an obscure class of bug!)
                 if (QueryDosDevice("Z:", subst_target, 300) > 0)
                 {
                     subst_z = subst_target.ToString();
@@ -194,6 +214,9 @@ namespace sideapp
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the timer label, starting or stopping the timer depending on its current state.
+        /// </summary>
         private void labelTimer1_Click(object sender, EventArgs e)
         {
             //	Note the start time and kick off a thread to count seconds
@@ -226,6 +249,9 @@ namespace sideapp
             }
         }
 
+        /// <summary>
+        /// Update the timer display for Timer 1.
+        /// </summary>
         private void ShowTimer1()
         {
             while (true)
@@ -233,13 +259,17 @@ namespace sideapp
                 TimeSpan ts = new TimeSpan();
                 ts = DateTime.Now - Timer1StartedAt;
 
-                string s = string.Format("{0,2:00}:{1,2:00}:{2,2:00}", ts.Hours, ts.Minutes, ts.Seconds);
-                labelTimer1.Text = s;
+                labelTimer1.Text = $"{ts.Hours,2:00}:{ts.Minutes,2:00}:{ts.Seconds,2:00}";
 
                 Thread.Sleep(500);
             }
         }
 
+        /// <summary>
+        /// Handles the double-click event for the timer label, resetting the timer to its initial state.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void labelTimer1_DoubleClick(object sender, EventArgs e)
         {
             //	If the timer is running, stop it
@@ -257,6 +287,12 @@ namespace sideapp
             Timer2AddMs = 0;
         }
 
+        /// <summary>
+        /// Handles the click event for the second timer label, starting or stopping the timer depending on 
+        /// its current state.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void labelTimer2_Click(object sender, EventArgs e)
         {
             //	Note the start time and kick off a thread to count seconds
@@ -296,6 +332,9 @@ namespace sideapp
             }
         }
 
+        /// <summary>
+        /// Update the timer display for Timer 2.
+        /// </summary>
         private void ShowTimer2()
         {
             while (true)
@@ -305,10 +344,9 @@ namespace sideapp
 
                 ts = DateTime.Now - Timer2StartedAt + tsAdd;
 
-                string s = string.Format("{0,2:00}:{1,2:00}:{2,2:00}", ts.Hours, ts.Minutes, ts.Seconds);
-                labelTimer2.Text = s;
+                labelTimer2.Text = $"{ts.Hours,2:00}:{ts.Minutes,2:00}:{ts.Seconds,2:00}";
 
-                //  Wobble the mouse ptr
+                //  Wobble the mouse ptr. Simulates activity to prevent screen savers/sleep.
                 var origpos = Cursor.Position;
                 var newpos = new Point(origpos.X + 1, origpos.Y);
 
@@ -317,9 +355,12 @@ namespace sideapp
 
                 Thread.Sleep(500);
             }
-
         }
 
+        /// <summary>
+        /// Handles the double-click event for the timer label, stopping the timer if it is running and resetting the
+        /// timer display.
+        /// </summary>
         private void labelTimer2_DoubleClick(object sender, EventArgs e)
         {
             //	If the timer is running, stop it
@@ -336,18 +377,33 @@ namespace sideapp
             labelTimer2Status.Text = "";
         }
 
+        /// <summary>
+        /// Single click on the event count label to increment the count.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void label1EventCount_Click(object sender, EventArgs e)
         {
             iEventCount++;
-            label1EventCount.Text = string.Format("{0,5}", iEventCount);
+            label1EventCount.Text = $"{iEventCount,5}";
         }
 
+        /// <summary>
+        /// Double click on the event count label to reset the count.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void label1EventCount_DoubleClick(object sender, EventArgs e)
         {
             iEventCount = 0;
-            label1EventCount.Text = string.Format("{0,5}", iEventCount);
+            label1EventCount.Text = $"{iEventCount,5}";
         }
 
+        /// <summary>
+        /// On quit button clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonQuit_Click(object sender, EventArgs e)
         {
             if (Timer1Running)
@@ -359,8 +415,6 @@ namespace sideapp
             threadShowDateTime.Abort();
 
             Application.Exit();
-
         }
-
     }
 }
