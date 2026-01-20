@@ -50,7 +50,7 @@ namespace sideapp
             this.label1EventCount.DoubleClick += new System.EventHandler(this.label1EventCount_DoubleClick);
         }
 
-        /// <summary>
+        /// <summary>   
         /// Handles the MouseEnter event for the form by making all previously hidden controls visible and initiating a
         /// background process to revert their visibility. Also brings the form to the foreground.
         /// </summary>
