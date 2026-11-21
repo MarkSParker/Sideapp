@@ -129,8 +129,11 @@ namespace sideapp
         {
             CheckForIllegalCrossThreadCalls = false;
 
-            //	Put the form top right
-            Left = SystemInformation.PrimaryMonitorSize.Width - Width;
+            //  Move app to second monitor, if any, and locate top-left
+            var screen = (Screen.AllScreens.Length > 1) ? Screen.AllScreens[1] : Screen.AllScreens[0];
+            StartPosition = FormStartPosition.Manual;
+            Location = screen.WorkingArea.Location;
+            Left = screen.WorkingArea.Right - Width;
             Top = 0;
 
             //	Start the clock
@@ -148,6 +151,7 @@ namespace sideapp
             //	Init the event count
             labelEventCountStatus.Text = "Event count";
             label1EventCount.Text = $"{iEventCount,5}";
+
         }
 
         /// <summary>
